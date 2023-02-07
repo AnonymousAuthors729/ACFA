@@ -33,21 +33,12 @@ To generate the Microcontroller program memory configuration containing VRASED t
 
         cd scripts
 
-To build a specific test-case run:
+To build the test-case:
 
-        make "name of test-case"
+        make demo
 
-For instance:
-
-        make simple_app
-
-to build the software including the binaries of simple_app test-case.
 Note that this step will not run any simulation, but simply generate the MSP430 binaries corresponding to the test-case of choice.
-As a result of the build, two files pmem.mem and smem.mem should be created inside msp_bin directory:
-
-- pmem.mem program memory contents corresponding the application binaries
-
-- smem.mem contains SW-Att binaries.
+As a result of the build, two files pmem.mem and smem.mem should be created inside msp_bin directory.
 
 In the next steps, during synthesis, these files will be loaded to the MSP430 memory when we either: deploy ACFA on the FPGA or run ACFA simulation using VIVADO simulation tools.
 
@@ -79,13 +70,13 @@ This is an example of how to synthesize and prototype ACFA using Basys3 FPGA and
 
 4- In the "Add Sources" window, select Add Files and add all .v and .mem files contained in the following directories of this reposiroty:
 
-        openmsp430/fpga
-        openmsp430/msp_core
-        openmsp430/msp_memory
-        openmsp430/msp_periph
-        /vrased/hw-mod
+        /acfa_hw
         /msp_bin
-
+        /openmsp430/fpga
+        /openmsp430/msp_core
+        /openmsp430/msp_memory
+        /openmsp430/msp_periph
+       
 and select Next.
 
 Note that /msp_bin contains the pmem.mem and smem.mem binaries, generated in step [Building ACFA Software].
@@ -129,6 +120,8 @@ After completing the steps 1-10 in [Creating a Vivado Project for ACFA]:
 1- In Vivado, click "Add Sources" (Alt-A), then select "Add or create simulation sources", click "Add Files", and select everything inside openmsp430/simulation.
 
 2- Now, navigate "Sources" window in Vivado. Search for "tb_openMSP430_fpga", and *In "Simulation Sources" tab*, right-click "tb_openMSP430_fpga.v" and set its file type as top module.
+
+3- In "tb_openMSP430_fpga", lines 193-196 open the file that each CFLog slice is written to. If you would prefer the *.cflog files are written in a specific directory, update these lines with the prefered path. Otherwise, they will be written to `{your vivado project dir}/{your vivado project name}.sim/sim_1/behav/xsim/`
 
 3- Go back to Vivado window and in the "Flow Navigator" tab (on the left-most part of Vivado's window), click "Run Simulation", then "Run Behavioral Simulation".
 
