@@ -121,19 +121,13 @@ After completing the steps 1-10 in [Creating a Vivado Project for ACFA]:
 
 2- Now, navigate "Sources" window in Vivado. Search for "tb_openMSP430_fpga", and *In "Simulation Sources" tab*, right-click "tb_openMSP430_fpga.v" and set its file type as top module.
 
-3- In "tb_openMSP430_fpga", lines 193-196 open the file that each CFLog slice is written to. If you would prefer the *.cflog files are written in a specific directory, update these lines with the prefered path. Otherwise, they will be written to `{your vivado project dir}/{your vivado project name}.sim/sim_1/behav/xsim/`
+3- In "tb_openMSP430_fpga", lines 193-196 open the file that each CFLog slice is written to. If you would prefer the `*.cflog` files are written in a specific directory, update these lines with the prefered path. Otherwise, they will be written to `{your vivado project dir}/{your vivado project name}.sim/sim_1/behav/xsim/`
 
-3- Go back to Vivado window and in the "Flow Navigator" tab (on the left-most part of Vivado's window), click "Run Simulation", then "Run Behavioral Simulation".
+4- Go back to Vivado window and in the "Flow Navigator" tab (on the left-most part of Vivado's window), click "Run Simulation", then "Run Behavioral Simulation".
 
-4- On the newly opened simulation window, select a time span for your simulation to run (see times for each default test-case below) and the press "Shift+F2" to run.
+5- On the newly opened simulation window, select a time span for your simulation to run (see times for each default test-case below) and the press "Shift+F2" to run.
 
-5- In the green wave window you will see values for several signals. The imporant ones are "exec", and "pc[15:0]". pc cointains the program counter value. exec corresponds to the value of ACFA's exec flag, as described in the paper.
-
-In Vivado simulation, for all test-cases provided by default, the final value of pc[0:15] should correspond to the instruction address inside "success" function (i.e., the program should halt inside "success" function).
-
-To determine the address of an instruction, e.g, addresses of the "success" function as well start and end addresses of ER (values of ER_min and ER_max, per ACFA's paper) one can check the compilation file at scripts/tmp-build/XX/vrased.lst  (where XX is the name of the test-case, i.e., if you ran "make simple_app", XX=simple_app). In this file search for the name of the function of interest, e.g., "success" or "dummy_function", etc.
-
-#### NOTE: To simulate a different test-case you need to re-run "make test-case_name" to generate the corresponding pmem.mem file and re-run the synthesis step (step 10 in [Creating a Vivado Project for ACFA]) on Vivado. 
+6- Check the directory in Step 3 for the `*.cflog` files.
 
 ## Generate Bitstream
 
