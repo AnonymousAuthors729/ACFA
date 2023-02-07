@@ -11,6 +11,11 @@ To jointly address these challenges, we propose ACFA: a hybrid (hardware/softwar
 
 This github repository provides an open-source reference implementation of ACFA on top of a commodity low-end MCU (TI MSP430) and evaluate it to demonstrate its security and cost-effectiveness.
 
+## Video Demo
+
+[A video demonstration of ACFA is avilable here](https://github.com/AnonymousAuthors729/ACFA/tree/main/video)
+
+
 ## Dependencies Installation
 
 Environment (processor and OS) used for development and verification:
