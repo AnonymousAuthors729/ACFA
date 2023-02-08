@@ -175,9 +175,11 @@ https://github.com/angr/angr-platforms/tree/master/angr_platforms/msp430
 
 ### Verifier Online phase
 
-1- To start the Verifier, `cd` into `demo_vrf` and run the python script in `serialComms.py`
+1- Determine the serial port that is being utilized by the FPGA board on your computer. In ubuntu, verify the port using the command `dmesg`. For Windows, verify the port in device manager. Then, update the variable `dev` in the file `demo_vrf/serialConfig.py` with the port information.
 
-2- You should see in the demo begin in the terminal, and it waits for the Prover.
+2- To start the Verifier, `cd` into `demo_vrf` and run the python script in `serialComms.py`
+
+3- You should see in the demo begin in the terminal, and it waits for the Prover.
 
 ### Start the Prover
 
