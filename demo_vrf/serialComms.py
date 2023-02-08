@@ -7,9 +7,7 @@ import csv
 from parse_cflog import *
 from vrf_log import *
 from hmac_mem import *
-# from vrf_shadow_stack import *
-
-# from hmac_mem import *
+from serialConfig import *
 
 #----------------- Functions ------------------#
 def my_hmac(k, key_size, data, data_size):
@@ -72,7 +70,6 @@ def swap_endianess(a):
 
 #----------------- Main Script ----------------#
 
-# metadata = aermin+aermax
 chal_size = 32
 challenge = get_init_challenge(chal_size)
 
@@ -83,7 +80,7 @@ METADATA_SIZE = 6
 #####
 
 key_size = 32
-# key = [35,1,103,69,171,137,239,205,
+
 key = [0,0,0,0,0,0,0,0,
        0,0,0,0,0,0,0,0,
        0,0,0,0,0,0,0,0,
@@ -104,15 +101,6 @@ max_log_size = 256
 pmem_hmac = hmac_mem(key, pmem_size)
 
 sim_idx = 0
-# # MSP430
-# dev = '/dev/ttyACM1'
-# baud = 115200
-# tx_timeout = 0.0005
-
-# FPGA
-dev = '/dev/ttyUSB1'
-baud = 9600
-tx_timeout = 0.0005
 
 ser = serial.Serial(dev, baud, timeout=0.5)
 report_num = 0
@@ -193,8 +181,6 @@ while last == 0 and app == 1:
 	
 	###### 4a: VERIFY CF-LOG
 	start = time.perf_counter()	
-	# valid_cflog = 1	
-	# parse_cflog(report_num, format_cflog, prv_log_ptr)
 	
 	if log_size == len(prv_cflog):
 		parse_cflog(report_num, prv_cflog, prv_log_ptr, debugfile)
@@ -209,12 +195,6 @@ while last == 0 and app == 1:
 	
 	print(logMessage[valid_cflog])
 	print("----------------------------------------------------------------")
-
-	# log_size = len(prv_cflog)
-	# cflog = [] # make cflog list of ints
-	# for i in range(0, log_size):
-	# 	cflog.append(prv_cflog[i])
-	# print("cflog: "+str(cflog))
 
 	##### 4b: VERIFY HMAC
 	print("", file=debugfile)
@@ -315,55 +295,30 @@ while last == 0 and app == 1:
 	start = time.perf_counter()
 	## app
 	ser.write(app)
-	# time.sleep(tx_timeout)
 	echo = ser.read(1)#.encode('hex')
 	print("echo (app): "+str(echo), file=debugfile)
 	
 	print("new_chal: "+str(new_chal), file=debugfile)
-	# for i in range(0, chal_size):
-	# 	ser.write(new_chal[i])
-	# 	time.sleep(tx_timeout)
+
 	ser.write(new_chal)
 	prv_chal = ser.read(32)#.encode('hex')
 	print("echo (prv_chal): ", file=debugfile)
 	print(str(prv_chal)+" ("+str(type(prv_chal))+")", file=debugfile)
 	challenge = new_chal
-
-	# print("new_chal   prv_chal")
-	# for i in range(0, 32):
-	# 	print(str(new_chal[i])+" "+str(prv_chal[i].to_bytes(1,'big')))
 	
-	## 'AER_min'
-	# aermin = [0xe0, 0x00] #aer_min = 0xe000
-	# aermin = b''.join([aermin[0].to_bytes(1,byteorder='big'), aermin[1].to_bytes(1,byteorder='big')])
-	# for i in range(0, 2):
-	# 	ser.write(aermin[i])
-	# 	time.sleep(tx_timeout)
 	ser.write(aermin)
 	echo = ser.read(2)
 	print("echo (aermin): "+str(echo)+" ("+str(type(echo))+")", file=debugfile)
-	# print("expected (aermin) "+str(b''.join(aermin)))
 	print("expected (aermin) "+str((aermin)), file=debugfile)
 	print("", file=debugfile)
-	## 'AER_max' = &acfa_exit --- double check this is correct!
-	# aermax = [0xe2, 0x64] 
-	# aermax = b''.join([aermax[0].to_bytes(1,byteorder='big'), aermax[1].to_bytes(1,byteorder='big')])
-	# for i in range(0, 2):
-	# 	ser.write(aermax[i])
-	# 	time.sleep(tx_timeout)
+
 	ser.write(aermax)
 	echo = ser.read(2)
 	print("echo (aermax): "+str(echo)+" ("+str(type(echo))+")", file=debugfile)
-	# print("expected (aermax) "+str(b''.join(aermax)))
 	print("expected (aermax) "+str((aermax)), file=debugfile)
 	print("", file=debugfile)
 
 	print("auth: "+str(auth), file=debugfile)
-	# auth = my_hmac(auth, key_size, [app], 1)
-	# print(b''.join([a.to_bytes(1, byteorder='big') for a in auth]))
-	# for i in range(0, chal_size):
-	# 	ser.write(auth[i])
-	# 	time.sleep(tx_timeout)
 	ser.write(auth)
 	echo = ser.read(chal_size)
 	print("echo (auth): "+str(echo)+" ("+str(type(echo))+")", file=debugfile)
@@ -395,12 +350,11 @@ while last == 0 and app == 1:
 	else:
 		print("-------- Prv REJECTS response from Vrf")
 		print("Prv REJECTS response from Vrf", file=debugfile)
-	# print("")
+
 	#### Read 'out' from prv
 	out = ser.read(1)
 	print("out: "+str(out), file=debugfile)
-	# print("")
-	# time.sleep(tx_timeout)
+
 	ser.write(out)
 	stop = time.perf_counter()
 	time_closing_steps = stop-start
@@ -409,9 +363,6 @@ while last == 0 and app == 1:
 	app = int.from_bytes(app, byteorder='big')
 	idx = out*(out+app)
 	
-	# print("out = "+str(out))
-	# print("app = "+str(app))
-	# print("idx = "+str(idx))
 	print(prvnextMessage[idx])
 	print(" ")
 
@@ -429,14 +380,6 @@ while last == 0 and app == 1:
 		print("echo (*(CHAL_BASE)): "+str(echo)+" ("+str(type(echo))+")", file=debugfile)
 		print("expected (*(CHAL_BASE)): "+str(new_chal), file=debugfile)
 
-		# echo = ser.read(chal_size)
-		# print("echo (*(HMAC_PMEM_DEBUG)): "+str(echo)+" ("+str(type(echo))+")")
-		# print("expected (*(HMAC_PMEM_DEBUG)): "+str(pmem_hmac))
-
-		# echo = ser.read(chal_size)
-		# print("echo (*(HMAC_CHAL_DEBUG)): "+str(echo)+" ("+str(type(echo))+")")
-		# print("expected (*(HMAC_CHAL_DEBUG)): "+str(hmac_chal))
-
 		echo = ser.read(16)
 		print("echo (pmem[0:15]): "+str(echo)+" ("+str(type(echo))+")", file=debugfile)
 		print("", file=debugfile)
@@ -451,7 +394,6 @@ while last == 0 and app == 1:
 	print("\t\t--Verify hmac: "+str(time_cmp_vrf_mac))
 	print("   Step 5:\tVrf Generate & response : "+str(time_gen_resp))
 	print("   Step 6:\tVrf Send response (V --> P): "+str(time_send_resp))
-	# print("Steps 5-6  Generate & send response (V --> P): "+str(time_gen_send_resp))
 
 	print("Steps 7-9:\tPrv authenticate and decide next action: "+str(time_closing_steps))
 	elapsed = time_recv_resp+time_cflog+time_cmp_vrf_mac+time_gen_send_resp
@@ -462,11 +404,7 @@ while last == 0 and app == 1:
 	
 	report_num += 1
 	total_time += elapsed
-	# total_s13 += time_recv_resp
 	total_s4 = time_cflog+time_cmp_vrf_mac
-	# total_s5 += time_gen_resp
-	# total_s6 += time_send_resp
-	# total_s79 += time_closing_steps
 
 	# Append round data to the list [step 1-3 time, step 4 time, step 5 time, step 6 time, step 7-9 time]
 	runtime_rounds.append([time_recv_resp, total_s4, time_gen_resp, time_send_resp, time_closing_steps])
@@ -477,11 +415,6 @@ while last == 0 and app == 1:
 
 print("--------------------------------------------------")
 print("Average Protocol Run Time ("+str(report_num)+" reports)")
-# print("Steps 1-3:\tReceive initial response (P --> V): "+str(total_s13/report_num))
-# print("   Step 4:\tVrf runs verification: "+str(total_s4/report_num))
-# print("   Step 5:\tVrf Generate & response : "+str(total_s5/report_num))
-# print("   Step 6:\tVrf Send response (V --> P): "+str(total_s6/report_num))
-# print("Steps 7-9:\tPrv authenticate and decide next action: "+str(total_s79/report_num))
 
 print("Round | Steps 1-3 | Step 4 | Step 5 | Step 6 | Step 7-9")
 for i in range(0, len(runtime_rounds)):
@@ -498,9 +431,4 @@ if not app:
 else:
 	print("Prv completed execution of AER")
 print("--------------------------------------------------")
-
-# timing_filename = "./timing/cf"+str(max_log_size)+"pm"+str(pmem_size)+".csv"
-# with open(timing_filename, 'w', newline="") as timingFile:
-# 	csvWriter = csv.writer(timingFile)
-# 	csvWriter.writerows(runtime_rounds)
 
