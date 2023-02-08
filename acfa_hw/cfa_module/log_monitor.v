@@ -2,13 +2,11 @@
 module  log_monitor (
     clk,
     //
-//    prev_pc,
     pc,
     pc_nxt,
     //
     ER_min,
     ER_max,
-//    LOG_size,
     //
     irq,
     reset,
@@ -23,17 +21,14 @@ module  log_monitor (
 );
 
 input		clk;
-//input   [15:0]  prev_pc;
 input   [15:0]  pc;
 input   [15:0]  pc_nxt;
 //
 input   [15:0]  ER_min;
 input   [15:0]  ER_max;
-//input   [15:0]  LOG_size;
 //
 input       irq;
 input		reset;
-// input   [15:0]  ptr;
 //
 input           loop_detect;
 input           branch_detect;
@@ -105,28 +100,6 @@ else
     attest_pend <= 0;
     
 assign flush = flush_log;
-
-//////////////// STATE LOGIC /////////////////
-//reg entering_ER;
-//always @(posedge clk)
-//begin
-//    begin
-//    case (pc_state)
-//        notX:
-//            if(pc >= ER_min && pc <= ER_max)
-//                entering_ER <= 1'b1;
-//            else
-//                entering_ER <= entering_ER;
-//        Wait:
-//            entering_ER <= entering_ER;
-//        inX:
-//            entering_ER <= 1'b0;
-//        Write:
-//            entering_ER <= entering_ER;
-//    endcase
-//    end
-     
-//end
 
 always @(posedge clk)
 begin
