@@ -25,8 +25,6 @@ Ubuntu 18.04.3 LTS
 Dependencies on Ubuntu:
 
                 sudo apt-get install bison pkg-config gawk clang flex gcc-msp430 iverilog tcl-dev
-                cd scripts
-                sudo make install
 
 ## Building Software
 To generate the Microcontroller program memory configuration containing VRASED trusted software (SW-Att) and sample applications we are going to use the Makefile inside the scripts directory:
