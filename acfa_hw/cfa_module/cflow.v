@@ -31,7 +31,6 @@ module cflow (
 
     ER_min,
     ER_max,
-//    LOG_size,
 
     irq_ta0,
     irq,
@@ -60,7 +59,6 @@ input   [15:0]  dma_addr;
 input           dma_en;
 input   [15:0]  ER_min;
 input   [15:0]  ER_max;
-//input   [15:0]  LOG_size;
 input           puc;
 input           irq_ta0;
 input           irq;
@@ -103,17 +101,14 @@ log_monitor #(
 ) 
 log_monitor_0 (
     .clk        (clk),
-//    .prev_pc     (prev_pc),
     .pc         (pc),
     .pc_nxt     (pc_nxt),
     
     .ER_min     (ER_min),
     .ER_max     (ER_max),
-//    .LOG_size   (LOG_size),
 
     .irq        (irq),
     .reset      (puc),
-    // .ptr        (cflow_log_ptr),
     .loop_detect    (loop_detect_out[0]),
     .branch_detect  (branch_detect),
 
@@ -123,10 +118,7 @@ log_monitor_0 (
     .cflow_log_prev_ptr (cflow_log_prev_ptr)
 );
 
-//wire hw_wr_en;
-//wire branch_detect;
-// wire acfa_nmi = irq_ta0 | flush | ER_done | boot;
-wire acfa_nmi = flush | ER_done | boot; // iverilog sim only
+wire acfa_nmi = irq_ta0 | flush | ER_done | boot;
 
 branch_monitor #(
     .LOG_SIZE (LOG_SIZE)
@@ -137,7 +129,6 @@ branch_monitor_0( //Branch Monitor
     .pc             (pc),     
     .ER_min         (ER_min),
     .ER_max         (ER_max),
-//    .LOG_size       (LOG_size),
     .acfa_nmi   (acfa_nmi),
     .irq        (irq),
     .gie        (gie),
@@ -148,35 +139,12 @@ branch_monitor_0( //Branch Monitor
     .branch_detect (branch_detect)
 );
 
-//assign cflow_hw_wen = hw_wr_en;
-
 reg [15:0] prev_pc;
-//reg [15:0] src;
-//reg [15:0] dest;
 
 always @(posedge clk)
 begin
-    prev_pc <= pc;
-    
-//    if(loop_detect)
-//    begin
-//        src <= loop_ctr[31:16];
-//        dest <= loop_ctr[15:0];
-//    end
-    
-//    else
-//    begin
-//        src <= prev_pc;
-//        dest <= pc;
-//    end
-       
+    prev_pc <= pc;  
 end
- 
-//wire src = (loop_detect_out & loop_ctr[31:16]) ^ (~loop_detect_out & prev_pc);
-//wire dest = (loop_detect_out & loop_ctr[15:0]) ^ (~loop_detect_out & pc);
-
-//assign cflow_src  = (loop_detect_out & loop_ctr[31:16]) ^ (~loop_detect_out & prev_pc);
-//assign cflow_dest = (loop_detect_out & loop_ctr[15:0]) ^ (~loop_detect_out & pc);
 
 wire [31:0] loop_ctr;
 wire [15:0] loop_detect_out;
@@ -191,18 +159,14 @@ loop_monitor loop_monitor_0(
     .branch_detect  (branch_detect),
     
     .loop_detect    (loop_detect_out),
-//    .loop_ctr       (loop_ctr),
     .cflow_src      (cflow_src),
     .cflow_dest     (cflow_dest)
 );
-
-//assign loop_detect = loop_detect_out[0];
 
 parameter TCB_min = 16'hdffe; 
 parameter RESET_addr = 16'he000;
 parameter PMEM_min = 16'he03e;
 
-// TCB has already been triggered by boot
 reg tcb_boot_done = 0;
 always @(posedge clk) 
 begin
