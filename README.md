@@ -24,9 +24,9 @@ Ubuntu 18.04.3 LTS
 
 Dependencies on Ubuntu:
 
-		sudo apt-get install bison pkg-config gawk clang flex gcc-msp430 iverilog tcl-dev
-		cd scripts
-		sudo make install
+                sudo apt-get install bison pkg-config gawk clang flex gcc-msp430 iverilog tcl-dev
+                cd scripts
+                sudo make install
 
 ## Building Software
 To generate the Microcontroller program memory configuration containing VRASED trusted software (SW-Att) and sample applications we are going to use the Makefile inside the scripts directory:
@@ -152,12 +152,18 @@ https://github.com/angr/angr-platforms/tree/master/angr_platforms/msp430
 
 ## Run Demo
 
+### Vrf - Offline Phase
+
+1- First, compile the expected demo application software. To do so, enter the `scripts` directory and execute `make demo`
+
+2- Next, run the offline phase. To do so, `cd` into `demo_vrf` and execute the python script `symbolic_exec.py`. Several output files will be created and referenced by Verifier during the online phase.
+
 ### Prv - Setup and compile Prv software
 
 1- Select which version of the software to execute in `demo_prv/main.c`: non-attack scenario or buffer-overflow exploit. Define `user_input` using line 35 for the non-attack scenario, and use line '38' for the buffer-overflow exploit. Make sure to only have one of these lines active at a time by commenting-out the other.
 
-2- the TCB is implemented in `tcb/wrapper.c`. Edit line 87 to the following:
-	`#define IS_SIM  NOTSIM`
+2- There are two versions of the TCB -- for vivado simulation and for the demo implementation. To select the implementation version, open the TCB source in `tcb/wrapper.c`. Edit line 87 to the following:
+        `#define IS_SIM  NOTSIM`
 
 3- `cd` into `scripts` directory and execute `make demo`. Read the console output to ensure there are no errors.
 
@@ -167,21 +173,19 @@ https://github.com/angr/angr-platforms/tree/master/angr_platforms/msp430
 
 2- Follow the previous steps to Generate Bitstream.
 
-### Start the Verifier
+### Verifier Online phase
 
-1- `cd` into `demo_vrf` and open the file `run_vrf.sh`. If you installed angr into a python environment, edit line 3 to reference the correct directory for your python environment. If you are not using a python environment, comment out lines 3 and 16.
+1- To start the Verifier, `cd` into `demo_vrf` and run the python script in `serialComms.py`
 
-2- Start the Vrf by executing the script `run_vrf.sh`. When the console output `'Starting protocol....'` appears, the Vrf is waiting for a report from the Prv.
+2- You should see in the demo begin in the terminal, and it waits for the Prover.
 
-### Start the Prv
+### Start the Prover
 
 1- In Vivado, upload the bitstream to the FPGA. As soon as it is uploaded, execution will begin. Select "Open Hardware Manager", connect the FPGA to you computer's USB port and click "Auto-Connect". Your FPGA should be now displayed on the hardware manager menu. Right-click your FPGA and select "Program Device" to program the FPGA.
 
-### Read output
-
-1- After this, the Prv will have finished executing. Reports sent to Vrf are saved in `demo_vrf` with the extension `.cflog`.
-
-2- Output from the serial communication is saved in `prot.log`
+2- After clicking "Program Device", the FPGA will have the design of the ACFA, and will start executing the software. The terminal will update with results of the protocol.
 
 ## Demo Result
 By running the version of the application that causes a buffer-overflow, anomalies will be detected and reported in the console. In the case of the buffer overflow example, The buffer overflow is detected at line 6 in `1.cflog`. More characters were read than expected, causing the loop of `read_data()` to execute eight times. In addition, the effect of the buffer overflow is seen at the next anamoly in line 9. The function `waitForPassword()` should return before the if statement (addr `0xe058`), but because of the buffer overflow the function returned to the 'Grant-Access condition' (addr `0xe06c`) without comparing the contents of `user_input` to `pass`.
+
+For extra output produced during the protocol, such as contents of the CFLog slices, the MAC-s, etc, view the contents of the log file `prot.log` in the `demo_vrf` directory
